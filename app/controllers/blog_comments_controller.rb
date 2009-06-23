@@ -1,4 +1,4 @@
-class BlogCommentsController < ApplicationController
+class BlogCommentsController < BloggityController
 	helper :blogs
 	before_filter :login_required
 	before_filter :load_blog_comment, :only => [:approve, :destroy, :edit, :update]

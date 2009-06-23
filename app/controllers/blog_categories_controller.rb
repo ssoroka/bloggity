@@ -1,4 +1,4 @@
-class BlogCategoriesController < ApplicationController
+class BlogCategoriesController < BloggityController
   before_filter :load_blog_category, :only => [:show, :edit, :destroy, :update]
 	before_filter :can_modify_blogs_or_redirect
 	

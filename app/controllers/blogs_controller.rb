@@ -1,4 +1,4 @@
-class BlogsController < ApplicationController
+class BlogsController < BloggityController
   before_filter :get_bloggity_page_name
 	before_filter :can_modify_blogs_or_redirect, :except => [:feed, :show]
 	before_filter :load_blog, :only => [:feed, :show]

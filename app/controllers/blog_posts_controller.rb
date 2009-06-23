@@ -1,4 +1,4 @@
-class BlogPostsController < ApplicationController
+class BlogPostsController < BloggityController
   before_filter :get_bloggity_page_name
 	before_filter :load_blog_post
 	before_filter :blog_writer_or_redirect, :except => [:close, :index, :show, :feed]
