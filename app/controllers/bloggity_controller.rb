@@ -8,11 +8,9 @@ class BloggityController < ApplicationController
   helper_method :blog_logged_in?, :blog_named_link
   
   def load_blog
-    if(!params[:blog_id] && (blog_url_identifier = params[:blog_url_id_or_id]))
-      @blog = Blog.find_by_url_identifier(blog_url_identifier)
-    end
-    @blog_id = params[:blog_id] || (@blog && @blog.id) || 1 # There is a default BlogSet created when the DB is bootstrapped, so we know we'll be able to fall back on this
-    @blog = Blog.find(@blog_id) unless @blog
+    @blog = Blog.find_by_url_identifier(params[:blog_url_id_or_id]) if params[:blog_url_id_or_id]
+    @blog ||= Blog.find_by_id(params[:blog_id] || params[:blog_url_id_or_id]) || Blog.first
+    @blog_id = @blog.id
   end
   
   def blog_writer_or_redirect

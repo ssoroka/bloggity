@@ -12,5 +12,12 @@ module BloggityUrlHelper
 		end
 	end
 	
-	
+  def blog_path(object, options = {})
+    case object
+    when Blog
+      "/blog/#{object.url_identifier}"
+    when BlogPost
+      "/blog/#{object.blog.url_identifier}/#{object.url_identifier}"
+    end
+  end
 end

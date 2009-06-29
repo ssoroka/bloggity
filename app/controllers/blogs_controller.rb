@@ -81,7 +81,7 @@ class BlogsController < BloggityController
 			redirect_to(:controller => 'blog_posts', action => :index)
 			return
 		end
-		@blog_id = @blog.id
+    # @blog_id = @blog.id
 		@blog_posts = BlogPost.find(:all, :conditions => ["blog_id = ? AND is_complete = ?", @blog_id, true], :order => "blog_posts.created_at DESC", :limit => 15)
 		render :action => :feed, :layout => false
 	end
