@@ -1,9 +1,3 @@
-<%# Guess.
-# -params-
-# comment: the comment we're showing
-# blog: the blog that this comment is part of
--%>
-
 <li class="<%= cycle('dark', '') -%> <%= comment.approved ? "approved" : "not_approved" -%>">
 	<table><tr><td class="comment_image">
 		<%= image_tag comment.user.blog_avatar_url -%>

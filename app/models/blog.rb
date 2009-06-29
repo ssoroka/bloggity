@@ -6,4 +6,5 @@
 # t.datetime "updated_at"
 
 class Blog < ActiveRecord::Base
+  has_many :blog_posts
 end

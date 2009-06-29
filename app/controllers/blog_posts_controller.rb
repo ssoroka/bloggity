@@ -17,7 +17,7 @@ class BlogPostsController < BloggityController
 			
 			# So alas... we must hack away:
 			search_condition = ["blog_id = ? AND is_complete = ? #{"AND blog_tags.name = ?" if params[:tag_name]} #{"AND category_id = ?" if params[:category_id]}", @blog_id, true, params[:tag_name], params[:category_id]].compact
-			BlogPost.paginate(:all, :select => "DISTINCT blog_posts.*", :conditions => search_condition, :include => :tags, :order => "blog_posts.created_at DESC", :page => blog_show_params[:page] || 1, :per_page => 15)
+			@blog.blog_posts.paginate(:all, :select => "DISTINCT blog_posts.*", :conditions => search_condition, :include => :tags, :order => "blog_posts.created_at DESC", :page => blog_show_params[:page] || 1, :per_page => 15)
 		else
 			@recent_posts
 		end
@@ -31,7 +31,7 @@ class BlogPostsController < BloggityController
   end
 	
 	def close
-		@blog_post = BlogPost.find(params[:id])
+		@blog_post = @blog.blog_posts.find(params[:id])
 		@blog_post.update_attribute(:comments_closed, true)
 		flash[:notice] = "Commenting for this blog has been closed."
 		redirect_to blog_named_link(@blog_post)
@@ -51,7 +51,7 @@ class BlogPostsController < BloggityController
   def show
 		blog_show_params = params[:blog_show_params] || {}
 		@recent_posts = recent_posts(blog_show_params)
-		@blog_post = BlogPost.find(:first, :conditions => ["id = ? OR url_identifier = ?", params[:id], params[:id]])
+		@blog_post = @blog.blog_posts.find(:first, :conditions => ["id = ? OR url_identifier = ?", params[:id], params[:id]])
 
 		if !@blog_post || (!@blog_post.is_complete && !current_user.can_blog?(@blog_post.blog_id))
 			@blog_post = nil
@@ -70,20 +70,20 @@ class BlogPostsController < BloggityController
   # GET /blog_posts/new
   # GET /blog_posts/new.xml
   def new
-    @blog_post = BlogPost.new(:posted_by_id => current_user, :fck_created => true, :blog_id => @blog_id)
+    @blog_post = @blog.blog_posts.new(:posted_by => current_user, :fck_created => true)
 		@blog_post.save # save it before we start editing it so we can know it's ID when it comes time to add images/assets
 		redirect_to blog_named_link(@blog_post, :edit)
   end
 
   # GET /blog_posts/1/edit
   def edit
-		@blog_post = BlogPost.find(params[:id])
+		@blog_post = @blog.blog_posts.find(params[:id])
   end
 
   # POST /blog_posts
   # POST /blog_posts.xml
   def create
-		@blog_post = BlogPost.new(params[:blog_post])
+		@blog_post = @blog.blog_posts.new(params[:blog_post])
 	  @blog_post.posted_by = current_user
 
 		if(@blog_post.save)
@@ -96,7 +96,7 @@ class BlogPostsController < BloggityController
   # PUT /blog_posts/1
   # PUT /blog_posts/1.xml
   def update
-    @blog_post = BlogPost.find(params[:id])
+    @blog_post = @blog.blog_posts.find(params[:id])
 
     if @blog_post.update_attributes(params[:blog_post])
       redirect_to blog_named_link(@blog_post)
@@ -116,7 +116,7 @@ class BlogPostsController < BloggityController
 	
 	def pending
 		blog_show_params = params[:blog_show_params] || {}
-		@pending_posts = BlogPost.paginate(:all, :conditions => ["blog_id = ? AND is_complete = ?", @blog_id, false], :order => "blog_posts.created_at DESC", :page => blog_show_params[:page] || 1, :per_page => 15)
+		@pending_posts = @blog.blog_posts.paginate(:all, :conditions => ["blog_id = ? AND is_complete = ?", @blog_id, false], :order => "blog_posts.created_at DESC", :page => blog_show_params[:page] || 1, :per_page => 15)
 		@recent_posts = recent_posts(blog_show_params)
 	end
 
@@ -128,10 +128,10 @@ class BlogPostsController < BloggityController
 	
 	def load_blog_post
 		load_blog
-		@blog_post = BlogPost.find(:first, :conditions => ["blog_id = ? AND (id = ? OR url_identifier = ?)", @blog_id, params[:id], params[:id]]) if params[:id]
+		@blog_post = @blog.blog_posts.find(:first, :conditions => ["id = ? OR url_identifier = ?", params[:id], params[:id]]) if params[:id]
 	end
 	
 	def recent_posts(blog_show_params)
-		BlogPost.paginate(:all, :select => "DISTINCT blog_posts.*", :conditions => ["blog_id = ? AND is_complete = ?", @blog_id, true], :order => "blog_posts.created_at DESC", :page => blog_show_params[:page] || 1, :per_page => 15)		
+		@blog.blog_posts.paginate(:all, :select => "DISTINCT blog_posts.*", :conditions => ["is_complete = ?", true], :order => "blog_posts.created_at DESC", :page => blog_show_params[:page] || 1, :per_page => 15)		
 	end
 end
